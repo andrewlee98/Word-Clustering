@@ -84,7 +84,6 @@ print('Data size', len(words))
 # vocabulary_size = 50000
 vocabulary_size = 1000
 
-
 def build_dataset(words, vocabulary_size):
   count = [['UNK', -1]]
   count.extend(collections.Counter(words).most_common(vocabulary_size - 1))
@@ -245,7 +244,10 @@ with tf.Session(graph=graph) as session:
           log_str = "%s %s," % (log_str, close_word)
         print(log_str)
   final_embeddings = normalized_embeddings.eval()
-  print(final_embeddings[1])
+
+  # Prints embeddings
+  # for emb in final_embeddings:
+  #   print(emb)
 
 # Step 6: Visualize the embeddings.
 
