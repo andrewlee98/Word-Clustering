@@ -31,6 +31,7 @@ import re
 import string
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
 
 cwd = os.getcwd()
 filename = cwd + "/word2vec/corpus.txt"
@@ -67,15 +68,26 @@ def read_data(filename):
             new_term_vector.append(word)
     tokenized_docs_no_stopwords.append(new_term_vector)
 
-  data = flatten(tokenized_docs_no_stopwords)
+  # stem
+  porter = PorterStemmer()
+  docs_stemmed = []
+  for doc in data:
+    final_doc = []
+    for word in doc:
+        final_doc.append(porter.stem(word))
+    docs_stemmed.append(final_doc)
+
+  # flatten into one dimensional list
+  data = flatten(docs_stemmed)
   data = [x.lower() for x in data]
 
   # clean digits
   for item in data[:]:
-      if item.isdigit():
+      if any(char.isdigit() for char in item) or len(item)<2:
           data.remove(item)
 
   return data
+
 
 words = read_data(filename)
 print('Data size', len(words))
