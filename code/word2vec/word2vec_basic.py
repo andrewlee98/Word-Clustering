@@ -33,6 +33,11 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import DBSCAN
+from sklearn import cluster
+from sklearn import metrics
+
 cwd = os.getcwd()
 filename = cwd + "/word2vec/corpus.txt"
 
@@ -44,7 +49,6 @@ def flatten(l):
 
 # Read the data into a list of strings.
 def read_data(filename):
-  data2 = list();
   with open(filename) as f:
     data = [line.rstrip('\n') for line in open(filename)]
   data = [word_tokenize(datum) for datum in data]
@@ -218,7 +222,7 @@ with graph.as_default():
   init = tf.global_variables_initializer()
 
 # Step 5: Begin training.
-num_steps = 100001
+num_steps = 50001 # 100001
 
 with tf.Session(graph=graph) as session:
   # We must initialize all variables before we use them.
@@ -285,8 +289,41 @@ try:
   tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
   plot_only = 500
   low_dim_embs = tsne.fit_transform(final_embeddings[:plot_only, :])
+  # print(final_embeddings.shape)
+  # print(reverse_dictionary)
+
+  # normalize embeddings
+  final_embeddings = StandardScaler().fit_transform(final_embeddings)
+  np.savetxt('embeddings.txt', final_embeddings, delimiter = ',')
+
+  # dbscan
+  print("dbscan:")
+  db = DBSCAN(eps=.3, min_samples=10).fit(final_embeddings)
+  labels = db.labels_
+  print(labels)
+  n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+  print('Estimated number of clusters: %d' % n_clusters_)
   labels = [reverse_dictionary[i] for i in xrange(plot_only)]
   plot_with_labels(low_dim_embs, labels)
+
+  #spectral
+  n_clusters=5
+  spectral = cluster.SpectralClustering(n_clusters,
+                                          eigen_solver='arpack',
+                                          affinity="nearest_neighbors")
+  spectral.fit(final_embeddings);
+  y_pred = spectral.labels_.astype(np.int)
+  print(y_pred)
+  # create lists of clustered words
+  cluster_lists = [[] for x in xrange(n_clusters)]
+  with open("clusters.txt", "w+") as text_file:
+    for x in range(0,n_clusters):
+      for word_num in range(0, len(y_pred)):
+        if y_pred[word_num] == x:
+          cluster_lists[x].append(reverse_dictionary[word_num])
+      # write clusters to text file
+      text_file.write("cluster #" + str(x) + ": " + str(cluster_lists[x]) + "\n")
+
 
 except ImportError:
   print("Please install sklearn, matplotlib, and scipy to visualize embeddings.")
