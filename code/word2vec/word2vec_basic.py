@@ -294,7 +294,7 @@ try:
 
   # normalize embeddings
   final_embeddings = StandardScaler().fit_transform(final_embeddings)
-  np.savetxt('embeddings.txt', final_embeddings, delimiter = ',')
+  np.savetxt('embeddings.txt', final_embeddings, fmt='%5.3f', delimiter = ',')
 
   # dbscan
   print("dbscan:")
@@ -313,10 +313,10 @@ try:
                                           affinity="nearest_neighbors")
   spectral.fit(final_embeddings);
   y_pred = spectral.labels_.astype(np.int)
-  print(y_pred)
   # create lists of clustered words
   cluster_lists = [[] for x in xrange(n_clusters)]
   with open("clusters.txt", "w+") as text_file:
+    text_file.write("spectral:\n")
     for x in range(0,n_clusters):
       for word_num in range(0, len(y_pred)):
         if y_pred[word_num] == x:
