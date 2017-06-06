@@ -267,6 +267,50 @@ with tf.Session(graph=graph) as session:
 
 # Step 6: Visualize the embeddings.
 
+def cluster_func(vecs):
+  # normalize embeddings
+  vecs = StandardScaler().fit_transform(vecs)
+  np.savetxt('embeddings.txt', vecs, fmt='%5.3f', delimiter = ',')
+
+  # dbscan
+  db = DBSCAN(eps=.3, min_samples=10).fit(vecs)
+  labels = db.labels_
+  n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+  print('Estimated number of clusters: %d' % n_clusters_)
+  if n_clusters_ < 1:
+    n_clusters_ = n_clusters_ + 1
+  cluster_lists = [[] for x in xrange(n_clusters_)]
+  with open("clusters.txt", "w+") as text_file:
+    text_file.write("=====DBSCAN (" + str(n_clusters_) + " clusters) :=====\n")
+    for x in range(0,n_clusters_):
+      for word_num in range(0, len(labels)):
+        if labels[word_num] == x-1:
+          cluster_lists[x].append(reverse_dictionary[word_num])
+      # write clusters to text file
+      text_file.write("cluster #" + str(x) + ": " + str(cluster_lists[x]) + "\n\n")
+
+    text_file.write("\n\n\n")
+
+  #spectral
+  n_clusters=5
+  spectral = cluster.SpectralClustering(n_clusters,
+                                          eigen_solver='arpack',
+                                          affinity="nearest_neighbors")
+  spectral.fit(vecs);
+  y_pred = spectral.labels_.astype(np.int)
+  # create lists of clustered words
+  cluster_lists = [[] for x in xrange(n_clusters)]
+  with open("clusters.txt", "a") as text_file:
+    text_file.write("=====spectral:=====\n")
+    for x in range(0,n_clusters):
+      for word_num in range(0, len(y_pred)):
+        if y_pred[word_num] == x:
+          cluster_lists[x].append(reverse_dictionary[word_num])
+      # write clusters to text file
+      text_file.write("cluster #" + str(x + 1) + ": " + str(cluster_lists[x]) + "\n\n")
+
+cluster_func(final_embeddings)
+
 def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
   assert low_dim_embs.shape[0] >= len(labels), "More labels than embeddings"
   plt.figure(figsize=(18, 18))  # in inches
@@ -289,53 +333,8 @@ try:
   tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
   plot_only = 500
   low_dim_embs = tsne.fit_transform(final_embeddings[:plot_only, :])
-  # print(final_embeddings.shape)
-  # print(reverse_dictionary)
-
-  # normalize embeddings
-  final_embeddings = StandardScaler().fit_transform(final_embeddings)
-  np.savetxt('embeddings.txt', final_embeddings, fmt='%5.3f', delimiter = ',')
-
-  # dbscan
-  db = DBSCAN(eps=.3, min_samples=10).fit(final_embeddings)
-  labels = db.labels_
-  n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
-  # print('Estimated number of clusters: %d' % n_clusters_)
-  if n_clusters_ < 1:
-    n_clusters_ = n_clusters_ + 1
-  cluster_lists = [[] for x in xrange(n_clusters_)]
-  with open("clusters.txt", "w+") as text_file:
-    text_file.write("DBSCAN:\n")
-    for x in range(0,n_clusters_):
-      for word_num in range(0, len(labels)):
-        if labels[word_num] == x-1:
-          cluster_lists[x].append(reverse_dictionary[word_num])
-      # write clusters to text file
-      print(cluster_lists[0])
-      print(x)
-      text_file.write("cluster #" + str(x) + ": " + str(cluster_lists[x]) + "\n")
-
-  text_file.write("cluster #" + str(x) + ": " + str(cluster_lists[x]) + "\n\n\n")
-
-  #spectral
-  n_clusters=5
-  spectral = cluster.SpectralClustering(n_clusters,
-                                          eigen_solver='arpack',
-                                          affinity="nearest_neighbors")
-  spectral.fit(final_embeddings);
-  y_pred = spectral.labels_.astype(np.int)
-  # create lists of clustered words
-  cluster_lists = [[] for x in xrange(n_clusters)]
-  with open("clusters.txt", "a") as text_file:
-    text_file.write("spectral:\n")
-    for x in range(0,n_clusters):
-      for word_num in range(0, len(y_pred)):
-        if y_pred[word_num] == x:
-          cluster_lists[x].append(reverse_dictionary[word_num])
-      # write clusters to text file
-      text_file.write("cluster #" + str(x + 1) + ": " + str(cluster_lists[x]) + "\n")
-    labels = [reverse_dictionary[i] for i in xrange(plot_only)]
-    plot_with_labels(low_dim_embs, labels)
+  labels = [reverse_dictionary[i] for i in xrange(plot_only)]
+  plot_with_labels(low_dim_embs, labels)
 
 except ImportError:
   print("Please install sklearn, matplotlib, and scipy to visualize embeddings.")
