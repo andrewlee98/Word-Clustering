@@ -270,7 +270,7 @@ with tf.Session(graph=graph) as session:
 def cluster_func(vecs):
   # normalize embeddings
   vecs = StandardScaler().fit_transform(vecs)
-  np.savetxt('embeddings.txt', vecs, fmt='%5.3f', delimiter = ',')
+  np.savetxt('embeddings.txt', vecs, fmt='%5.3f', delimiter = ',', header = "embeddings: ")
 
   # dbscan
   db = DBSCAN(eps=.3, min_samples=10).fit(vecs)
