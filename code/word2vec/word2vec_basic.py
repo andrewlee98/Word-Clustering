@@ -261,19 +261,17 @@ with tf.Session(graph=graph) as session:
         print(log_str)
   final_embeddings = normalized_embeddings.eval()
 
-  # Prints embeddings
-  # for emb in final_embeddings:
-  #   print(emb)
-
-# Step 6: Visualize the embeddings.
+# write embeddings to file
+with open('embeddings.txt','w+') as f:
+  for vec, word in zip(final_embeddings, reverse_dictionary):
+    f.write(reverse_dictionary[word] + ": " + str(["{0:0.2f}".format(i) for i in vec]) + "\n\n")
 
 def cluster_func(vecs):
   # normalize embeddings
   vecs = StandardScaler().fit_transform(vecs)
-  # np.savetxt('embeddings.txt', vecs, fmt='%5.3f', delimiter = ',', header = "embeddings: ")
-  with open('embeddings.txt','w+') as f:
-    for vec,word in zip(vecs,reverse_dictionary):
-      f.write(reverse_dictionary[word] + ": " + str(["{0:0.2f}".format(i) for i in vec]) + "\n\n")
+  # with open('embeddings.txt','w+') as f:
+  #   for vec, word in zip(final_embeddings, reverse_dictionary):
+  #     f.write(reverse_dictionary[word] + ": " + str(["{0:0.2f}".format(i) for i in vec]) + "\n\n")
 
   # dbscan
   db = DBSCAN(eps=.3, min_samples=10).fit(vecs)
@@ -314,6 +312,9 @@ def cluster_func(vecs):
 
 cluster_func(final_embeddings)
 
+
+
+# Step 6: Visualize the embeddings.
 def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
   assert low_dim_embs.shape[0] >= len(labels), "More labels than embeddings"
   plt.figure(figsize=(18, 18))  # in inches
