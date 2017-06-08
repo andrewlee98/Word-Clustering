@@ -270,7 +270,10 @@ with tf.Session(graph=graph) as session:
 def cluster_func(vecs):
   # normalize embeddings
   vecs = StandardScaler().fit_transform(vecs)
-  np.savetxt('embeddings.txt', vecs, fmt='%5.3f', delimiter = ',', header = "embeddings: ")
+  # np.savetxt('embeddings.txt', vecs, fmt='%5.3f', delimiter = ',', header = "embeddings: ")
+  with open('embeddings.txt','w+') as f:
+    for vec,word in zip(vecs,reverse_dictionary):
+      f.write(reverse_dictionary[word] + ": " + str(["{0:0.2f}".format(i) for i in vec]) + "\n\n")
 
   # dbscan
   db = DBSCAN(eps=.3, min_samples=10).fit(vecs)
