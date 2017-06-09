@@ -63,27 +63,32 @@ def read_data(filename):
               new_review.append(new_token)
       tokenized_docs_no_punctuation.append(new_review)
 
-  # remove stopwords
-  tokenized_docs_no_stopwords = []
-  for doc in tokenized_docs_no_punctuation:
-    new_term_vector = []
-    for word in doc:
-        if not word in stopwords.words('english'):
-            new_term_vector.append(word)
-    tokenized_docs_no_stopwords.append(new_term_vector)
+  # # remove stopwords
+  # tokenized_docs_no_stopwords = []
+  # for doc in tokenized_docs_no_punctuation:
+  #   new_term_vector = []
+  #   for word in doc:
+  #       if word in stopwords.words('english'):
+  #         print('lmao')
+  #       if word not in stopwords.words('english'):
+  #           new_term_vector.append(word)
+  #   tokenized_docs_no_stopwords.append(new_term_vector)
 
   # stem
   porter = PorterStemmer()
   docs_stemmed = []
-  for doc in data:
+  for doc in tokenized_docs_no_punctuation:
     final_doc = []
     for word in doc:
-        final_doc.append(porter.stem(word))
+      final_doc.append(porter.stem(word))
     docs_stemmed.append(final_doc)
 
   # flatten into one dimensional list
   data = flatten(docs_stemmed)
   data = [x.lower() for x in data]
+
+  data = [word for word in data if word not in stopwords.words('english')]
+
 
   # clean digits
   for item in data[:]:
