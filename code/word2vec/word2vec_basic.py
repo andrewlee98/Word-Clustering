@@ -306,7 +306,16 @@ def cluster_func(vecs):
 
 cluster_func(final_embeddings)
 
+def computeDist(v1, v2):
+  sum = 0
+  for a,b in zip(v1,v2):
+    sum += (a-b)**2
+  return sum
 
+for vec1 in final_embeddings:
+  dist_vec = []
+  for vec2 in final_embeddings:
+    dist_vec.append(computeDish(v1, v2))
 
 # Step 6: Visualize the embeddings.
 def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
