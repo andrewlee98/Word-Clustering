@@ -63,17 +63,6 @@ def read_data(filename):
               new_review.append(new_token)
       tokenized_docs_no_punctuation.append(new_review)
 
-  # # remove stopwords
-  # tokenized_docs_no_stopwords = []
-  # for doc in tokenized_docs_no_punctuation:
-  #   new_term_vector = []
-  #   for word in doc:
-  #       if word in stopwords.words('english'):
-  #         print('lmao')
-  #       if word not in stopwords.words('english'):
-  #           new_term_vector.append(word)
-  #   tokenized_docs_no_stopwords.append(new_term_vector)
-
   # stem
   porter = PorterStemmer()
   docs_stemmed = []
@@ -298,7 +287,7 @@ def cluster_func(vecs):
     text_file.write("\n\n\n")
 
   #spectral
-  n_clusters=5
+  n_clusters = 5 #2-10
   spectral = cluster.SpectralClustering(n_clusters,
                                           eigen_solver='arpack',
                                           affinity="nearest_neighbors")
