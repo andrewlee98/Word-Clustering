@@ -216,7 +216,7 @@ with graph.as_default():
   init = tf.global_variables_initializer()
 
 # Step 5: Begin training.
-num_steps = 50001 # 100001
+num_steps = 10001 # 100001
 
 with tf.Session(graph=graph) as session:
   # We must initialize all variables before we use them.
@@ -310,12 +310,20 @@ def computeDist(v1, v2):
   sum = 0
   for a,b in zip(v1,v2):
     sum += (a-b)**2
-  return sum
+  return math.sqrt(sum)
 
-for vec1 in final_embeddings:
+dist_matrix = []
+print('wat the du hai')
+b = 0
+for vec1 in final_embeddings[:10]:
   dist_vec = []
   for vec2 in final_embeddings:
-    dist_vec.append(computeDish(v1, v2))
+    print(b)
+    b += 1
+    dist_vec.append(computeDist(vec1, vec2))
+  dist_matrix.append(dist_vec)
+print(dist_matrix)
+
 
 # Step 6: Visualize the embeddings.
 def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
