@@ -216,7 +216,7 @@ with graph.as_default():
   init = tf.global_variables_initializer()
 
 # Step 5: Begin training.
-num_steps = 10001 # 100001
+num_steps = 50001 # 100001
 
 with tf.Session(graph=graph) as session:
   # We must initialize all variables before we use them.
@@ -287,7 +287,7 @@ def cluster_func(vecs):
     text_file.write("\n\n\n")
 
   #spectral
-  n_clusters = 5 #2-10
+  n_clusters = 10 #2-10
   spectral = cluster.SpectralClustering(n_clusters,
                                           eigen_solver='arpack',
                                           affinity="nearest_neighbors")
@@ -303,27 +303,24 @@ def cluster_func(vecs):
           cluster_lists[x].append(reverse_dictionary[word_num])
       # write clusters to text file
       text_file.write("cluster #" + str(x + 1) + ": " + str(cluster_lists[x]) + "\n\n")
+  print("silhouette score: " + str(metrics.silhouette_score(vecs, y_pred, metric = 'sqeuclidean')))
 
 cluster_func(final_embeddings)
 
-def computeDist(v1, v2):
-  sum = 0
-  for a,b in zip(v1,v2):
-    sum += (a-b)**2
-  return math.sqrt(sum)
+# def computeDist(v1, v2):
+#   sum = 0
+#   for a,b in zip(v1,v2):
+#     sum += (a-b)**2
+#   return math.sqrt(sum)
 
-dist_matrix = []
-print('wat the du hai')
-b = 0
-for vec1 in final_embeddings[:10]:
-  dist_vec = []
-  for vec2 in final_embeddings:
-    print(b)
-    b += 1
-    dist_vec.append(computeDist(vec1, vec2))
-  dist_matrix.append(dist_vec)
-print(dist_matrix)
-
+# dist_matrix = []
+# b = 0
+# for vec1 in final_embeddings[:10]:
+#   dist_vec = []
+#   for vec2 in final_embeddings:
+#     b += 1
+#     dist_vec.append(computeDist(vec1, vec2))
+#   dist_matrix.append(dist_vec)
 
 # Step 6: Visualize the embeddings.
 def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
