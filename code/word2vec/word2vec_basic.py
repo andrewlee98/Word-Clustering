@@ -43,7 +43,8 @@ filename = cwd + "/word2vec/corpus.txt"
 
 def flatten(l):
     try:
-        return flatten(l[0]) + (flatten(l[1:]) if len(l) > 1 else []) if type(l) is list else [l]
+        return flatten(l[0]) + (flatten(l[1:]) if len(l) > 1 else []) if \
+        type(l) is list else [l]
     except IndexError:
         return []
 
@@ -113,7 +114,8 @@ def build_dataset(words, vocabulary_size):
   reverse_dictionary = dict(zip(dictionary.values(), dictionary.keys()))
   return data, count, dictionary, reverse_dictionary
 
-data, count, dictionary, reverse_dictionary = build_dataset(words, vocabulary_size)
+data, count, dictionary, reverse_dictionary = \
+build_dataset(words, vocabulary_size)
 del words  # Hint to reduce memory.
 print('Most common words (+UNK)', count[:5])
 print('Sample data', data[:10], [reverse_dictionary[i] for i in data[:10]])
@@ -258,14 +260,12 @@ with tf.Session(graph=graph) as session:
 # write embeddings to file
 with open('embeddings.txt','w+') as f:
   for vec, word in zip(final_embeddings, reverse_dictionary):
-    f.write(reverse_dictionary[word] + ": " + str(["{0:0.2f}".format(i) for i in vec]) + "\n\n")
+    f.write(reverse_dictionary[word] + ": " + \
+    str(["{0:0.2f}".format(i) for i in vec]) + "\n\n")
 
 def cluster_func(vecs):
   # normalize embeddings
   vecs = StandardScaler().fit_transform(vecs)
-  # with open('embeddings.txt','w+') as f:
-  #   for vec, word in zip(final_embeddings, reverse_dictionary):
-  #     f.write(reverse_dictionary[word] + ": " + str(["{0:0.2f}".format(i) for i in vec]) + "\n\n")
 
   # dbscan
   db = DBSCAN(eps=.3, min_samples=10).fit(vecs)
@@ -282,7 +282,8 @@ def cluster_func(vecs):
         if labels[word_num] == x-1:
           cluster_lists[x].append(reverse_dictionary[word_num])
       # write clusters to text file
-      text_file.write("cluster #" + str(x) + ": " + str(cluster_lists[x]) + "\n\n")
+      text_file.write("cluster " + str(x) + ": " + str(cluster_lists[x]) + \
+      "\n\n")
 
     text_file.write("\n\n\n")
 
@@ -302,8 +303,10 @@ def cluster_func(vecs):
         if y_pred[word_num] == x:
           cluster_lists[x].append(reverse_dictionary[word_num])
       # write clusters to text file
-      text_file.write("cluster #" + str(x + 1) + ": " + str(cluster_lists[x]) + "\n\n")
-  print("silhouette score: " + str(metrics.silhouette_score(vecs, y_pred, metric = 'sqeuclidean')))
+      text_file.write("cluster #" + str(x + 1) + ": " + \
+      str(cluster_lists[x]) + "\n\n")
+  print("silhouette score: " + \
+  str(metrics.silhouette_score(vecs, y_pred, metric = 'sqeuclidean')))
 
 cluster_func(final_embeddings)
 
