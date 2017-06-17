@@ -34,12 +34,13 @@ from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 
 from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import DBSCAN
 from sklearn import cluster
 from sklearn import metrics
 
-cwd = os.getcwd()
-filename = cwd + "/word2vec/corpus.txt"
+filename = 'corpus.txt'
+
+# cwd = os.getcwd()
+# filename = cwd + filename
 
 def flatten(l):
     try:
@@ -218,7 +219,7 @@ with graph.as_default():
     init = tf.global_variables_initializer()
 
 # Step 5: Begin training.
-num_steps = 50001 # 100001
+num_steps = 10001 # 100001
 
 with tf.Session(graph=graph) as session:
     # We must initialize all variables before we use them.
@@ -268,7 +269,7 @@ def cluster_func(vecs):
     vecs = StandardScaler().fit_transform(vecs)
 
     # dbscan
-    db = DBSCAN(eps=.3, min_samples=10).fit(vecs)
+    db = cluster.DBSCAN(eps=.3, min_samples=10).fit(vecs)
     labels = db.labels_
     n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
     print('Estimated number of clusters: %d' % n_clusters_)
@@ -288,7 +289,7 @@ def cluster_func(vecs):
         text_file.write("\n\n\n")
 
     #spectral
-    n_clusters = 10 #2-10
+    n_clusters = 5 #2-10
     spectral = cluster.SpectralClustering(n_clusters,
                                           eigen_solver='arpack',
                                           affinity="nearest_neighbors")
@@ -307,6 +308,25 @@ def cluster_func(vecs):
             str(cluster_lists[x]) + "\n\n")
     print("silhouette score: " + \
     str(metrics.silhouette_score(vecs, y_pred, metric = 'sqeuclidean')))
+
+    #k-means
+    n_clusters = 5
+    kmeans = cluster.KMeans(n_clusters, init='k-means++').fit(vecs)
+    y_pred = kmeans.labels_.astype(np.int)
+    # create lists of clustered words
+    cluster_lists = [[] for x in xrange(n_clusters)]
+    with open("clusters.txt", "a") as text_file:
+        text_file.write("=====k-means:=====\n")
+        for x in range(0,n_clusters):
+            for word_num in range(0, len(y_pred)):
+                if y_pred[word_num] == x:
+                    cluster_lists[x].append(reverse_dictionary[word_num])
+            # write clusters to text file
+            text_file.write("cluster #" + str(x + 1) + ": " + \
+            str(cluster_lists[x]) + "\n\n")
+    print("silhouette score: " + \
+    str(metrics.silhouette_score(vecs, y_pred, metric = 'sqeuclidean')))
+
 
 cluster_func(final_embeddings)
 
