@@ -219,7 +219,7 @@ with graph.as_default():
     init = tf.global_variables_initializer()
 
 # Step 5: Begin training.
-num_steps = 10001 # 100001
+num_steps = 50001 # 100001
 
 with tf.Session(graph=graph) as session:
     # We must initialize all variables before we use them.
@@ -267,13 +267,11 @@ with open('embeddings.txt','w+') as f:
 def get_centroids(vecs, labels):
     centroids = []
     temp_sum = [0] * len(vecs[0])
-    for i in range(0, max(labels)):
+    for i in range(0, max(labels)+1):
         for label,vec in zip(labels, vecs):
-            print(len(vec))
             if label == i:
                 temp_sum = [sum(x) for x in zip(temp_sum, vec)]
         temp_sum = [x / (labels == i).sum() for x in temp_sum]
-        print(temp_sum)
         centroids.append(temp_sum)
     return centroids
     
@@ -302,7 +300,7 @@ def davies_bouldin(X, labels, cluster_ctr):
     for j in range(num_clusters):
         if(i != j):
             s_j = intra_cluster_dist(X, labels, clusters[j], num_items_in_clusters[j], cluster_ctr[j])
-            m_ij = np.linalg.norm(cluster_ctr[clusters[i]]-cluster_ctr[clusters[j]])
+            m_ij = np.linalg.norm([a - b for a,b in zip(cluster_ctr[clusters[i]],cluster_ctr[clusters[j]])])
             r_ij = (s_i + s_j)/m_ij
             if(r_ij > max_num):
                 max_num = r_ij
@@ -333,7 +331,7 @@ def cluster_func(vecs):
         text_file.write("\n\n\n")
 
     # spectral
-    n_clusters = 5 #2-10
+    n_clusters = 50 #2-10
     spectral = cluster.SpectralClustering(n_clusters,
                                           eigen_solver='arpack',
                                           affinity="nearest_neighbors")
@@ -357,7 +355,7 @@ def cluster_func(vecs):
     print("Davies-Bouldin Index: " + str(davies_bouldin(vecs, y_pred,centroids)))
 
     # k-means
-    n_clusters = 5
+    n_clusters = 50
     kmeans = cluster.KMeans(n_clusters, init='k-means++').fit(vecs)
     y_pred = kmeans.labels_.astype(np.int)
     # create lists of clustered words
