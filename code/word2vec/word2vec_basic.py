@@ -264,17 +264,31 @@ with open('embeddings.txt','w+') as f:
         f.write(reverse_dictionary[word] + ": " + \
         str(["{0:0.2f}".format(i) for i in vec]) + "\n\n")
 
+def get_centroids(vecs, labels):
+    centroids = []
+    temp_sum = [0] * len(vecs[0])
+    for i in range(0, max(labels)):
+        for label,vec in zip(labels, vecs):
+            print(len(vec))
+            if label == i:
+                temp_sum = [sum(x) for x in zip(temp_sum, vec)]
+        temp_sum = [x / (labels == i).sum() for x in temp_sum]
+        print(temp_sum)
+        centroids.append(temp_sum)
+    return centroids
+    
+
 def intra_cluster_dist(X, labels, cluster, num_items_in_cluster, centroid):
     total_dist = 0
     #for every item in cluster j, compute the distance the the center of cluster j, take average
     for k in range(num_items_in_cluster):
         dist = np.linalg.norm(X[labels==cluster]-centroid)
         total_dist = dist + total_dist
-return total_dist/num_items_in_cluster
+    return total_dist/num_items_in_cluster
 
 def davies_bouldin(X, labels, cluster_ctr):
     #get the cluster assignemnts
-    clusters = set(labels)
+    clusters = list(set(labels))
     #get the number of clusters
     num_clusters = len(clusters)
     #array to hold the number of items for each cluster, indexed by cluster number
@@ -338,7 +352,9 @@ def cluster_func(vecs):
             str(cluster_lists[x]) + "\n\n")
     print("silhouette score: " + \
     str(metrics.silhouette_score(vecs, y_pred, metric = 'sqeuclidean')))
-    print("Davies-Bouldin Index: " + str(davies_bouldin_index(vecs, y_pred)))
+
+    centroids = get_centroids(vecs, y_pred)
+    print("Davies-Bouldin Index: " + str(davies_bouldin(vecs, y_pred,centroids)))
 
     # k-means
     n_clusters = 5
@@ -357,7 +373,9 @@ def cluster_func(vecs):
             str(cluster_lists[x]) + "\n\n")
     print("silhouette score: " + \
     str(metrics.silhouette_score(vecs, y_pred, metric = 'sqeuclidean')))
-    print("Davies-Bouldin Index: " + str(davies_bouldin_index(vecs, y_pred)))
+
+    centroids = get_centroids(vecs, y_pred)
+    print("Davies-Bouldin Index: " + str(davies_bouldin(vecs, y_pred, centroids)))
 
 cluster_func(final_embeddings)
 # Step 6: Visualize the embeddings.
