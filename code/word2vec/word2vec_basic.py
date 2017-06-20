@@ -37,6 +37,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn import cluster
 from sklearn import metrics
 
+import matplotlib.pyplot as plt
+
+
 filename = 'corpus.txt'
 
 # cwd = os.getcwd()
@@ -219,7 +222,7 @@ with graph.as_default():
     init = tf.global_variables_initializer()
 
 # Step 5: Begin training.
-num_steps = 10001 # 100001
+num_steps = 50001 # 100001
 
 with tf.Session(graph=graph) as session:
     # We must initialize all variables before we use them.
@@ -404,11 +407,41 @@ def kmeans(vecs, n_clusters, disp):
 
 dbscan(final_embeddings, False)
 
-sil = []
-dav = []
-for i in range(2,100):
-    spectral(final_embeddings, 50, False)
-    kmeans(final_embeddings, 50, False)
+# plot for spectral
+n_clusters = []
+sils = []
+davs = []
+for i in range(2,101):
+    n_clusters.append(i)
+    davies, silhouette = spectral(final_embeddings, i, False)
+    sils.append(silhouette)
+    davs.append(davies)
+
+def plot_metrics(n_clusts, dav, sil, graph_title):
+    plt.figure()
+    fig, ax1 = plt.subplots()
+    ax2 = ax1.twinx()
+    ax1.plot(n_clusts, dav, 'r--')
+    ax2.plot(n_clusts, sil, 'b--')
+    ax1.set_xlabel('Number of Clusters')
+    ax1.set_ylabel('Davies-Bouldin Index', color='r')
+    ax2.set_ylabel('Silhouette Score', color='b')
+    plt.title('Metrics for ' + graph_title + ' Clustering')
+    plt.savefig(graph_title + '.png', bbox_inches='tight')
+
+plot_metrics(n_clusters, davs, sils, 'Spectral')
+
+# plot for K-Means
+n_clusters = []
+sils = []
+davs = []
+for i in range(2,101):
+    n_clusters.append(i)
+    davies, silhouette = spectral(final_embeddings, i, False)
+    sils.append(silhouette)
+    davs.append(davies)
+
+plot_metrics(n_clusters, davs, sils, 'K-Means')
 
 # Step 6: Visualize the embeddings.
 def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
@@ -428,7 +461,6 @@ def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
 
 try:
     from sklearn.manifold import TSNE
-    import matplotlib.pyplot as plt
 
     tsne = TSNE(perplexity=30, n_components=2, init='pca', n_iter=5000)
     plot_only = 500
