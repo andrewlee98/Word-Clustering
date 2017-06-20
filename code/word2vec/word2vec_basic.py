@@ -306,12 +306,10 @@ def davies_bouldin(X, labels, cluster_ctr):
                 max_num = r_ij
     return max_num
 
-def dbscan(vecs):
-    print("dbscan:")
+def dbscan(vecs, disp):
     # normalize embeddings
     vecs = StandardScaler().fit_transform(vecs)
 
-    # dbscan
     db = cluster.DBSCAN(eps=.3, min_samples=10).fit(vecs)
     labels = db.labels_
     n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
@@ -331,20 +329,21 @@ def dbscan(vecs):
         text_file.write("\n\n\n")
 
     if max(labels) < 2:
-        print("\n")
         return
 
-    print("silhouette score: " + \
-    str(metrics.silhouette_score(vecs, labels, metric = 'sqeuclidean')))
-
+    silhouette = metrics.silhouette_score(vecs, y_pred, metric = 'sqeuclidean')
     centroids = get_centroids(vecs, y_pred)
-    print("Davies-Bouldin Index: " + str(davies_bouldin(vecs, labels ,centroids)))
-    print("\n")
+    davies = davies_bouldin(vecs, y_pred, centroids)
+
+    if disp:
+        print("dbscan:")
+        print("silhouette score: " + silhouette)
+        print("Davies-Bouldin Index: " + str(davies_bouldin(vecs, labels ,centroids)))
+        print("\n")
 
 
 
-def spectral(vecs, n_clusters):
-    print("spectral:")
+def spectral(vecs, n_clusters, disp):
     spectral = cluster.SpectralClustering(n_clusters,
                                           eigen_solver='arpack',
                                           affinity="nearest_neighbors")
@@ -363,15 +362,19 @@ def spectral(vecs, n_clusters):
             str(cluster_lists[x]) + "\n\n")
         text_file.write("\n\n\n")
 
-    print("silhouette score: " + \
-    str(metrics.silhouette_score(vecs, y_pred, metric = 'sqeuclidean')))
-
+    silhouette = metrics.silhouette_score(vecs, y_pred, metric = 'sqeuclidean')
     centroids = get_centroids(vecs, y_pred)
-    print("Davies-Bouldin Index: " + str(davies_bouldin(vecs, y_pred,centroids)))
-    print("\n")
+    davies = davies_bouldin(vecs, y_pred, centroids)
 
-def kmeans(vecs, n_clusters):
-    print("kmeans:")
+    if disp:
+        print("spectral:")
+        print("silhouette score: " + str(silhouette))
+        print("Davies-Bouldin Index: " + str(davies_bouldin(vecs, y_pred, centroids)))
+        print("\n")
+
+    return davies, silhouette
+
+def kmeans(vecs, n_clusters, disp):
     kmeans = cluster.KMeans(n_clusters, init='k-means++').fit(vecs)
     y_pred = kmeans.labels_.astype(np.int)
     # create lists of clustered words
@@ -387,16 +390,26 @@ def kmeans(vecs, n_clusters):
             str(cluster_lists[x]) + "\n\n")
         text_file.write("\n\n\n")
 
-    print("silhouette score: " + \
-    str(metrics.silhouette_score(vecs, y_pred, metric = 'sqeuclidean')))
+        silhouette = metrics.silhouette_score(vecs, y_pred, metric = 'sqeuclidean')
+        centroids = get_centroids(vecs, y_pred)
+        davies = davies_bouldin(vecs, y_pred, centroids)
 
-    centroids = get_centroids(vecs, y_pred)
-    print("Davies-Bouldin Index: " + str(davies_bouldin(vecs, y_pred, centroids)))
-    print("\n")
+    if disp:
+        print("kmeans:")
+        print("silhouette score: " + str(silhouette))
+        print("Davies-Bouldin Index: " + str(davies_bouldin(vecs, y_pred, centroids)))
+        print("\n")
 
-dbscan(final_embeddings)
-spectral(final_embeddings, 10)
-kmeans(final_embeddings, 50)
+    return davies, silhouette
+
+dbscan(final_embeddings, False)
+
+sil = []
+dav = []
+for i in range(2,100):
+    spectral(final_embeddings, 50, False)
+    kmeans(final_embeddings, 50, False)
+
 # Step 6: Visualize the embeddings.
 def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
     assert low_dim_embs.shape[0] >= len(labels), "More labels than embeddings"
