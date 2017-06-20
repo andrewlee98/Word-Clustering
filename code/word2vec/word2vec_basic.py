@@ -352,18 +352,20 @@ def spectral(vecs, n_clusters, disp):
                                           affinity="nearest_neighbors")
     spectral.fit(vecs);
     y_pred = spectral.labels_.astype(np.int)
-    # create lists of clustered words
-    cluster_lists = [[] for x in xrange(n_clusters)]
-    with open("clusters.txt", "a") as text_file:
-        text_file.write("=====spectral:=====\n")
-        for x in range(0,n_clusters):
-            for word_num in range(0, len(y_pred)):
-                if y_pred[word_num] == x:
-                    cluster_lists[x].append(reverse_dictionary[word_num])
-            # write clusters to text file
-            text_file.write("cluster #" + str(x + 1) + ": " + \
-            str(cluster_lists[x]) + "\n\n")
-        text_file.write("\n\n\n")
+
+    if disp:
+        # create lists of clustered words
+        cluster_lists = [[] for x in xrange(n_clusters)]
+        with open("clusters.txt", "a") as text_file:
+            text_file.write("=====spectral:=====\n")
+            for x in range(0,n_clusters):
+                for word_num in range(0, len(y_pred)):
+                    if y_pred[word_num] == x:
+                        cluster_lists[x].append(reverse_dictionary[word_num])
+                # write clusters to text file
+                text_file.write("cluster #" + str(x + 1) + ": " + \
+                str(cluster_lists[x]) + "\n\n")
+            text_file.write("\n\n\n")
 
     silhouette = metrics.silhouette_score(vecs, y_pred, metric = 'sqeuclidean')
     centroids = get_centroids(vecs, y_pred)
@@ -380,18 +382,20 @@ def spectral(vecs, n_clusters, disp):
 def kmeans(vecs, n_clusters, disp):
     kmeans = cluster.KMeans(n_clusters, init='k-means++').fit(vecs)
     y_pred = kmeans.labels_.astype(np.int)
-    # create lists of clustered words
-    cluster_lists = [[] for x in xrange(n_clusters)]
-    with open("clusters.txt", "a") as text_file:
-        text_file.write("=====k-means:=====\n")
-        for x in range(0,n_clusters):
-            for word_num in range(0, len(y_pred)):
-                if y_pred[word_num] == x:
-                    cluster_lists[x].append(reverse_dictionary[word_num])
-            # write clusters to text file
-            text_file.write("cluster #" + str(x + 1) + ": " + \
-            str(cluster_lists[x]) + "\n\n")
-        text_file.write("\n\n\n")
+
+    if disp:
+        # create lists of clustered words
+        cluster_lists = [[] for x in xrange(n_clusters)]
+        with open("clusters.txt", "a") as text_file:
+            text_file.write("=====k-means:=====\n")
+            for x in range(0,n_clusters):
+                for word_num in range(0, len(y_pred)):
+                    if y_pred[word_num] == x:
+                        cluster_lists[x].append(reverse_dictionary[word_num])
+                # write clusters to text file
+                text_file.write("cluster #" + str(x + 1) + ": " + \
+                str(cluster_lists[x]) + "\n\n")
+            text_file.write("\n\n\n")
 
         silhouette = metrics.silhouette_score(vecs, y_pred, metric = 'sqeuclidean')
         centroids = get_centroids(vecs, y_pred)
