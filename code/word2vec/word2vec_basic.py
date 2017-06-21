@@ -222,7 +222,7 @@ with graph.as_default():
     init = tf.global_variables_initializer()
 
 # Step 5: Begin training.
-num_steps = 50001 # 100001
+num_steps = 10001 # 100001
 
 with tf.Session(graph=graph) as session:
     # We must initialize all variables before we use them.
@@ -420,6 +420,20 @@ for i in range(2,101):
     davies, silhouette = spectral(final_embeddings, i, False)
     sils.append(silhouette)
     davs.append(davies)
+
+p0 = (n_clusters[0], davs[0])
+p1 = (n_clusters[len(n_clusters) - 1], davs[len(davs) - 1])
+
+m = (p0[1] - p1[1]) / (p0[0] - p1[0])
+b = p0[1] - m * p0[0]
+print(str(m) + " " + str(b))
+
+max_dist = 0
+for x, y in zip(n_clusters, davs):
+    d = abs(m*x + -1*y + b) / math.sqrt(1 + m**2)
+    if d > max_dist:
+        elbow = x
+print(elbow)
 
 def plot_metrics(n_clusts, dav, sil, graph_title):
     plt.figure()
