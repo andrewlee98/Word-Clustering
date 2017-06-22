@@ -222,7 +222,7 @@ with graph.as_default():
     init = tf.global_variables_initializer()
 
 # Step 5: Begin training.
-num_steps = 10001 # 100001
+num_steps = 50001 # 100001
 
 with tf.Session(graph=graph) as session:
     # We must initialize all variables before we use them.
@@ -433,13 +433,14 @@ for x, y in zip(n_clusters, davs):
     d = abs(a*x + b*y + c) / math.sqrt(a**2 + b**2)
     if d > max_dist:
         max_dist = d
-        elbow = x
+        elbow = (x,y)
 print(elbow)
 
 def plot_metrics(n_clusts, dav, sil, graph_title):
     plt.figure()
     fig, ax1 = plt.subplots()
     ax2 = ax1.twinx()
+    ax1.plot(elbow[0], elbow[1], 'gs')
     ax1.plot(n_clusts, dav, 'r--')
     ax2.plot(n_clusts, sil, 'b--')
     ax1.set_xlabel('Number of Clusters')
