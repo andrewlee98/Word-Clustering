@@ -449,6 +449,7 @@ def plot_metrics(n_clusts, dav, sil, graph_title, elbow):
     ax2.set_ylabel('Silhouette Score', color='b')
     plt.title('Metrics for ' + graph_title + ' Clustering')
     plt.savefig(graph_title + '.png', bbox_inches='tight')
+    print(graph_title + ": " elbow)
 
 elbow = find_optimal_clusters(n_clusters, davs, sils)
 plot_metrics(n_clusters, davs, sils, 'Spectral', elbow)
