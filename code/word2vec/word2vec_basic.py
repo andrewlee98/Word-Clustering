@@ -40,7 +40,7 @@ from sklearn import metrics
 import matplotlib.pyplot as plt
 
 
-filename = 'corpus.txt'
+filename = 'test.txt'
 
 # cwd = os.getcwd()
 # filename = cwd + filename
@@ -450,10 +450,10 @@ def plot_metrics(n_clusts, dav, sil, graph_title, elbow):
     ax2.set_ylabel('Silhouette Score', color='b')
     plt.title('Metrics for ' + graph_title + ' Clustering')
     plt.savefig(graph_title + '.png', bbox_inches='tight')
-    print(graph_title + ": " + str(elbow))
 
 elbow = find_optimal_clusters(n_clusters, davs, sils)
 plot_metrics(n_clusters, davs, sils, 'Spectral', elbow)
+spectral(final_embeddings, elbow[0], True)
 
 # plot for K-Means
 n_clusters = []
@@ -467,6 +467,7 @@ for i in range(2,101):
 
 elbow = find_optimal_clusters(n_clusters, davs, sils)
 plot_metrics(n_clusters, davs, sils, 'K-Means', elbow)
+spectral(final_embeddings, elbow[0], True)
 
 # Step 6: Visualize the embeddings.
 def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
