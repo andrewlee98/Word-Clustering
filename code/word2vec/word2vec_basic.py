@@ -32,6 +32,7 @@ import string
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
+from nltk.stem.wordnet import WordNetLemmatizer
 
 from sklearn.preprocessing import StandardScaler
 from sklearn import cluster
@@ -70,11 +71,13 @@ def read_data(filename):
 
     # stem
     porter = PorterStemmer()
+    wordnet = WordNetLemmatizer()
     docs_stemmed = []
     for doc in tokenized_docs_no_punctuation:
         final_doc = []
         for word in doc:
-            final_doc.append(porter.stem(word))
+            # final_doc.append(porter.stem(word))
+            final_doc.append(wordnet.lemmatize(word))
         docs_stemmed.append(final_doc)
 
     # flatten into one dimensional list
@@ -82,7 +85,6 @@ def read_data(filename):
     data = [x.lower() for x in data]
 
     data = [word for word in data if word not in stopwords.words('english')]
-
 
     # clean digits
     for item in data[:]:
