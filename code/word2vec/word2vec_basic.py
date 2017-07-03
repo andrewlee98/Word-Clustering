@@ -446,10 +446,10 @@ def plot_metrics(n_clusts, dav, sil, graph_title, elbow):
     ax1.plot(elbow[0], elbow[1], 'gs')
     ax1.annotate(str(elbow), elbow, textcoords = 'data')
     ax1.plot(n_clusts, dav, 'r--')
-    ax2.plot(n_clusts, sil, 'b--')
+    # ax2.plot(n_clusts, sil, 'b--')
     ax1.set_xlabel('Number of Clusters')
     ax1.set_ylabel('Davies-Bouldin Index', color='r')
-    ax2.set_ylabel('Silhouette Score', color='b')
+    # ax2.set_ylabel('Silhouette Score', color='b')
     plt.title('Metrics for ' + graph_title + ' Clustering')
     plt.savefig(graph_title + '.png', bbox_inches='tight')
 
