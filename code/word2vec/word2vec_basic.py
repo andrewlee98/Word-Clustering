@@ -47,11 +47,11 @@ filename = 'test.txt'
 # filename = cwd + filename
 
 def flatten(l):
-    try:
-        return flatten(l[0]) + (flatten(l[1:]) if len(l) > 1 else []) if \
-        type(l) is list else [l]
-    except IndexError:
-        return []
+    flat_list = []
+    for sublist in l:
+        for item in sublist:
+            flat_list.append(item)
+    return flat_list
 
 # Read the data into a list of strings.
 def read_data(filename):
@@ -450,7 +450,7 @@ def plot_metrics(n_clusts, dav, sil, graph_title, elbow):
     ax1.set_xlabel('Number of Clusters')
     ax1.set_ylabel('Davies-Bouldin Index', color='r')
     # ax2.set_ylabel('Silhouette Score', color='b')
-    plt.title('Metrics for ' + graph_title + ' Clustering')
+    plt.title('DB Index for ' + graph_title + ' Clustering (lemmatizing)')
     plt.savefig(graph_title + '.png', bbox_inches='tight')
 
 elbow = find_optimal_clusters(n_clusters, davs, sils)
