@@ -39,7 +39,10 @@ from sklearn import cluster
 from sklearn import metrics
 
 import matplotlib.pyplot as plt
+import matplotlib
 
+net_graph = []
+step_graph = []
 
 filename = 'test.txt'
 
@@ -76,8 +79,8 @@ def read_data(filename):
     for doc in tokenized_docs_no_punctuation:
         final_doc = []
         for word in doc:
-            # final_doc.append(porter.stem(word))
-            final_doc.append(wordnet.lemmatize(word))
+            final_doc.append(porter.stem(word))
+            # final_doc.append(wordnet.lemmatize(word))
         docs_stemmed.append(final_doc)
 
     # flatten into one dimensional list
@@ -95,6 +98,10 @@ def read_data(filename):
 
 
 words = read_data(filename)
+with open('cleantext.txt', 'w') as f:
+    for word in words:
+        f.write(word + " ")
+
 print('Data size', len(words))
 
 # Step 2: Build the dictionary and replace rare words with UNK token.
@@ -246,6 +253,8 @@ with tf.Session(graph=graph) as session:
             if step > 0:
                 average_loss /= 2000
             # The average loss is an estimate of the loss over the last 2000 batches.
+            step_graph.append(step)
+            net_graph.append(average_loss)
             print("Average loss at step ", step, ": ", average_loss)
             average_loss = 0
 
@@ -442,7 +451,7 @@ def find_optimal_clusters(n_clusters, davs, sils):
 def plot_metrics(n_clusts, dav, sil, graph_title, elbow):
     plt.figure()
     fig, ax1 = plt.subplots()
-    ax2 = ax1.twinx()
+    # ax2 = ax1.twinx()
     ax1.plot(elbow[0], elbow[1], 'gs')
     ax1.annotate(str(elbow), elbow, textcoords = 'data')
     ax1.plot(n_clusts, dav, 'r--')
@@ -450,12 +459,19 @@ def plot_metrics(n_clusts, dav, sil, graph_title, elbow):
     ax1.set_xlabel('Number of Clusters')
     ax1.set_ylabel('Davies-Bouldin Index', color='r')
     # ax2.set_ylabel('Silhouette Score', color='b')
-    plt.title('DB Index for ' + graph_title + ' Clustering (lemmatizing)')
+    plt.title('DB Index for ' + graph_title + ' Clustering (stemming)')
     plt.savefig(graph_title + '.png', bbox_inches='tight')
 
 elbow = find_optimal_clusters(n_clusters, davs, sils)
 plot_metrics(n_clusters, davs, sils, 'Spectral', elbow)
 spectral(final_embeddings, elbow[0], True)
+
+plt.figure()
+plt.plot(step_graph, net_graph, "y--")
+plt.title('Average Loss vs. Epochs')
+plt.xlabel('Training Epochs')
+plt.ylabel('Average Loss')
+plt.savefig('training.png')
 
 # plot for K-Means
 n_clusters = []
@@ -469,10 +485,11 @@ for i in range(2,101):
 
 elbow = find_optimal_clusters(n_clusters, davs, sils)
 plot_metrics(n_clusters, davs, sils, 'K-Means', elbow)
-spectral(final_embeddings, elbow[0], True)
+kmeans(final_embeddings, elbow[0], True)
 
 # Step 6: Visualize the embeddings.
 def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
+    matplotlib.rcParams.update({'font.size': 18})
     assert low_dim_embs.shape[0] >= len(labels), "More labels than embeddings"
     plt.figure(figsize=(18, 18))  # in inches
     for i, label in enumerate(labels):
