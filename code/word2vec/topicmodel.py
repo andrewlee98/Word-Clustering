@@ -7,6 +7,7 @@ from gensim import corpora
 with open('test.txt') as f:
     docs = f.readlines()
 docs = [x.strip() for x in docs]
+print(len(docs))
 
 stop = set(stopwords.words('english'))
 exclude = set(string.punctuation) 
@@ -23,6 +24,6 @@ dictionary = corpora.Dictionary(doc_clean)
 doc_term_matrix = [dictionary.doc2bow(doc) for doc in doc_clean]
 
 Lda = gensim.models.ldamodel.LdaModel
-ldamodel = Lda(doc_term_matrix, num_topics=3, id2word = dictionary, passes=50)
+ldamodel = Lda(doc_term_matrix, num_topics=15, id2word = dictionary, passes=1000)
 
-print(ldamodel.print_topics(num_topics=3, num_words=3))
+print(ldamodel.print_topics(num_topics=15))
