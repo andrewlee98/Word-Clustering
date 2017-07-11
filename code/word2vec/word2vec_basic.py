@@ -489,7 +489,7 @@ kmeans(final_embeddings, elbow[0], True)
 
 # Step 6: Visualize the embeddings.
 def plot_with_labels(low_dim_embs, labels, filename='tsne.png'):
-    matplotlib.rcParams.update({'font.size': 18})
+    matplotlib.rcParams.update({'font.size': 22})
     assert low_dim_embs.shape[0] >= len(labels), "More labels than embeddings"
     plt.figure(figsize=(18, 18))  # in inches
     for i, label in enumerate(labels):

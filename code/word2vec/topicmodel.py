@@ -24,6 +24,6 @@ dictionary = corpora.Dictionary(doc_clean)
 doc_term_matrix = [dictionary.doc2bow(doc) for doc in doc_clean]
 
 Lda = gensim.models.ldamodel.LdaModel
-ldamodel = Lda(doc_term_matrix, num_topics=15, id2word = dictionary, passes=1000)
+ldamodel = Lda(doc_term_matrix, num_topics=5, id2word = dictionary, passes=100)
 
-print(ldamodel.print_topics(num_topics=15))
+print(ldamodel.print_topics(num_topics=5))
